@@ -8,12 +8,11 @@ JavaScript&HTML5 ゲーム開発用システム
 th@wwsft.com ワールドワイドソフトウェア 廣瀬
 */
 
-import { rnd, log, int, str, abs} from './WWSlib/Utility'
-import { touchStart, touchMove, touchEnd, touchCancel,
-        mouseDown, mouseMove, mouseUp, mouseOut, tapC,
-        onKey, offKey } from "./WWSlib/Event"
-import { cvs, initCanvas, CHEIGHT, CWIDTH, fill, fText, fTextN, lineW, bakH, bakW, line_width } from "./WWSlib/Canvas"
-import { se } from './WWSlib/Sound'
+import { int, log } from './WWSlib/Utility'
+import { Touch, Mouse, Key } from "./WWSlib/Event"
+import { CWIDTH, CHEIGHT, Canvas } from "./WWSlib/Canvas"
+import { Draw } from "./WWSlib/Draw"
+import { SE } from './WWSlib/Sound'
 import { device } from './WWSlib/Device'
 // -------------変数-------------
 export const  SYS_VER = "Ver.20201111"
@@ -44,17 +43,32 @@ export abstract class MMS {
   abstract clrKey(): void
   abstract mainloop(): void
 
+  public canvas: Canvas
+  public draw: Draw
+  public mouse: Mouse
+  public touch: Touch
+  public key: Key
+  public se: SE
+
   constructor() {
     window.addEventListener("load", this.wwsSysInit.bind(this))
+    this.canvas = new Canvas()
+    this.draw = new Draw()
+    this.se = new SE()
+    this.mouse = new Mouse(this.se)
+    this.touch = new Touch(this.se)
+    this.key = new Key(this.se)
   }
 
   wwsSysMain(): void {
 
     let stime = Date.now()
 
-    if(bakW != window.innerWidth || bakH != window.innerHeight) {
-      initCanvas()
-      lineW(line_width)
+    if(this.canvas.bakW != window.innerWidth || this.canvas.bakH != window.innerHeight) {
+      this.canvas.initCanvas()
+      this.draw.lineW(this.draw.line_width)
+      log("canvas size changed " + this.canvas.bakW + "x" + this.canvas.bakH);
+
     }
 
     main_tmr ++
@@ -72,12 +86,12 @@ export abstract class MMS {
         let x = int(CWIDTH / 2)
         let y = int(CHEIGHT / 6)
         let fs = int(CHEIGHT / 16)
-        fill("black")
-        fText("※セーブデータが保存されません※", x, y/2, fs, "yellow");
-        fTextN("iOS端末をお使いの場合は\nSafariのプライベートブラウズ\nをオフにして起動して下さい。", x, y*2, y, fs, "yellow");
-        fTextN("その他の機種（ブラウザ）では\nローカルストレージへの保存を\n許可する設定にして下さい。", x, y*4, y, fs, "yellow");
-        fText("このまま続けるには画面をタップ", x, y*5.5, fs, "lime");
-        if(tapC != 0) main_idx = 2;
+        this.draw.fill("black")
+        this.draw.fText("※セーブデータが保存されません※", x, y/2, fs, "yellow");
+        this.draw.fTextN("iOS端末をお使いの場合は\nSafariのプライベートブラウズ\nをオフにして起動して下さい。", x, y*2, y, fs, "yellow");
+        this.draw.fTextN("その他の機種（ブラウザ）では\nローカルストレージへの保存を\n許可する設定にして下さい。", x, y*4, y, fs, "yellow");
+        this.draw.fText("このまま続けるには画面をタップ", x, y*5.5, fs, "lime");
+        if(this.mouse.tapC != 0) main_idx = 2;
         break;
 
       case 2: //メイン処理
@@ -87,7 +101,7 @@ export abstract class MMS {
           this.clrKey()
           main_tmr--
         }
-        if(se.wait_se > 0) se.wait_se--
+        if(this.se.wait_se > 0) this.se.wait_se--
         break
       default: break
     }
@@ -99,7 +113,7 @@ export abstract class MMS {
   }
 
   wwsSysInit() {
-    initCanvas()
+    this.canvas.initCanvas()
     if( NUA.indexOf('Android') > 0 ) {
       device.type = device.PT_Android;
     }
@@ -111,21 +125,20 @@ export abstract class MMS {
       device.type = device.PT_Kindle;
     }
 
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("keyup", offKey);
+    window.addEventListener("keydown", this.key.on.bind(this.key))
+    window.addEventListener("keyup", this.key.off.bind(this.key))
 
     if(supportTouch == true) {
-      cvs.addEventListener("touchstart", touchStart)
-      cvs.addEventListener("touchmove", touchMove)
-      cvs.addEventListener("touchend", touchEnd)
-      cvs.addEventListener("touchcancel", touchCancel)
+      this.canvas.cvs.addEventListener("touchstart", this.touch.start.bind(this.touch))
+      this.canvas.cvs.addEventListener("touchmove", this.touch.move.bind(this.touch))
+      this.canvas.cvs.addEventListener("touchend", this.touch.end.bind(this.touch))
+      this.canvas.cvs.addEventListener("touchcancel", this.touch.cancel.bind(this.touch))
     } else {
-      cvs.addEventListener("mousedown", mouseDown)
-      cvs.addEventListener("mousemove", mouseMove)
-      cvs.addEventListener("mouseup", mouseUp)
-      cvs.addEventListener("mouseout", mouseOut)
+      this.canvas.cvs.addEventListener("mousedown", this.mouse.down.bind(this.mouse))
+      this.canvas.cvs.addEventListener("mousemove", this.mouse.move.bind(this.mouse))
+      this.canvas.cvs.addEventListener("mouseup", this.mouse.up.bind(this.mouse))
+      this.canvas.cvs.addEventListener("mouseout", this.mouse.out.bind(this.mouse))
     }
     this.wwsSysMain()
   }
 }
-

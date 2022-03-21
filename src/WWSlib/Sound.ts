@@ -1,53 +1,53 @@
-
 // -------------サウンド制御-------------
 export let  SOUND_ON = true
+export class SE {
+  public wait_se: number = 0
+  public snd_init: number = 0
+  soundFile: HTMLAudioElement[]
+  isBgm: number
+  bgmNo: number
+  seNo:number
 
-class SE {
-  _wait_se: number = 0
-  _snd_init: number = 0
-  get wait_se() { return this._wait_se }
-  set wait_se(wait_se: number) { this._wait_se = wait_se }
+  soundloaded: number
+  sf_name: string[]
 
-  //サウンドファイルを読み込んだか(スマホ対策)
-  get snd_init(): number { return this._snd_init }
-  set snd_init(val: number) { this._snd_init = val }
-
-}
-
-export const se = new SE()
-
-const soundFile = new Array(256)
-let isBgm = -1
-let bgmNo = 0
-let seNo = -1
-
-let soundloaded = 0 //いくつファイルを読み込んだか
-export const sf_name = new Array(256)
-
-export function loadSoundSPhone() {//スマホでファイルを読み込む
-  try {
-    for(let i = 0; i < soundloaded; i++) {
-      soundFile[i] = new Audio(sf_name[i])
-      soundFile[i].load()
-    }
-  } catch(e) {
+  constructor() {
+    //サウンドファイルを読み込んだか(スマホ対策)
+    this.wait_se = 0
+    this.snd_init = 0
+    this.soundFile = new Array(256)
+    this.isBgm = -1
+    this.bgmNo = 0
+    this.seNo = -1
+    this.soundloaded = 0 //いくつファイルを読み込んだか
+    this.sf_name = new Array(256)
   }
-  se.snd_init = 2 //スマホでファイルを読み込んだ
-}
 
-export function loadSound(n: number, filename: string) {
-  sf_name[n] = filename
-  soundloaded++
-}
+  loadSoundSPhone() {//スマホでファイルを読み込む
+    try {
+      for(let i = 0; i < this.soundloaded; i++) {
+        this.soundFile[i] = new Audio(this.sf_name[i])
+        this.soundFile[i].load()
+      }
+    } catch(e) {
+    }
+    this.snd_init = 2 //スマホでファイルを読み込んだ
+  }
 
-export function playSE(n: number) {
-  if(SOUND_ON == false) return
-  if(isBgm == 2) return
-  if(se.wait_se == 0) {
-    seNo = n
-    soundFile[n].currentTime = 0
-    soundFile[n].loop = false
-    soundFile[n].play()
-    se.wait_se = 3 //ブラウザに負荷をかけないように連続して流さないようにする
+  loadSound(n: number, filename: string) {
+    this.sf_name[n] = filename
+    this.soundloaded++
+  }
+
+  playSE(n: number) {
+    if(SOUND_ON == false) return
+    if(this.isBgm == 2) return
+    if(this.wait_se == 0) {
+      this.seNo = n
+      this.soundFile[n].currentTime = 0
+      this.soundFile[n].loop = false
+      this.soundFile[n].play()
+      this.wait_se = 3 //ブラウザに負荷をかけないように連続して流さないようにする
+    }
   }
 }
