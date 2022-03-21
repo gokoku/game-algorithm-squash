@@ -13,7 +13,7 @@ import { Touch, Mouse, Key } from "./WWSlib/Event"
 import { CWIDTH, CHEIGHT, Canvas } from "./WWSlib/Canvas"
 import { Draw } from "./WWSlib/Draw"
 import { SE } from './WWSlib/Sound'
-import { device } from './WWSlib/Device'
+import { Device, PT_Android, PT_iOS, PT_Kindle } from './WWSlib/Device'
 // -------------変数-------------
 export const  SYS_VER = "Ver.20201111"
 export let  DEBUG = false
@@ -49,6 +49,7 @@ export abstract class MMS {
   public touch: Touch
   public key: Key
   public se: SE
+  public device: Device
 
   constructor() {
     window.addEventListener("load", this.wwsSysInit.bind(this))
@@ -58,6 +59,7 @@ export abstract class MMS {
     this.mouse = new Mouse(this.se)
     this.touch = new Touch(this.se)
     this.key = new Key(this.se)
+    this.device = new Device()
   }
 
   wwsSysMain(): void {
@@ -115,14 +117,14 @@ export abstract class MMS {
   wwsSysInit() {
     this.canvas.initCanvas()
     if( NUA.indexOf('Android') > 0 ) {
-      device.type = device.PT_Android;
+      this.device.type = PT_Android;
     }
     else if( NUA.indexOf('iPhone') > 0 || NUA.indexOf('iPod') > 0 || NUA.indexOf('iPad') > 0 ) {
-      device.type = device.PT_iOS;
+      this.device.type = PT_iOS;
       window.scrollTo(0,1);//iPhoneのURLバーを消す位置に
     }
     else if( NUA.indexOf('Silk') > 0 ) {
-      device.type = device.PT_Kindle;
+      this.device.type = PT_Kindle;
     }
 
     window.addEventListener("keydown", this.key.on.bind(this.key))

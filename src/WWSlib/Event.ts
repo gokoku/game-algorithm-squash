@@ -1,7 +1,17 @@
 import { int, log } from "./Utility"
-import { device } from "./Device"
 import { SE } from "./Sound"
 import { SCALE } from "./Canvas"
+import { Device, PT_Android } from "./Device"
+
+export const K_ENTER = 13
+export const K_SPACE = 32
+export const K_LEFT  = 37
+export const K_UP    = 38
+export const K_RIGHT = 39
+export const K_DOWN  = 40
+export const K_a     = 65
+export const K_z     = 90
+
 // ---------- タップ入力 ----------
 export class Touch {
 	public tapX: number
@@ -103,10 +113,12 @@ export class Acc {
 	_acX = 0
 	_acY = 0
 	_acZ = 0;
+	_device: Device
 
-	constructor() {
+	constructor(device: Device) {
 		//window.ondevicemotion = deviceMotion;//★★★旧
 		window.addEventListener("devicemotion", this.deviceMotion);
+		this._device = device
 	}
 
 	deviceMotion(e: DeviceMotionEvent) {
@@ -115,7 +127,7 @@ export class Acc {
 		if(aIG.x) this._acX = int(aIG.x);
 		if(aIG.y) this._acY = int(aIG.y);
 		if(aIG.z) this._acZ = int(aIG.z);
-		if(device.type == device.PT_Android) {//Android と iOS で正負が逆になる
+		if(this._device.type == PT_Android) {//Android と iOS で正負が逆になる
 			this._acX = -this._acX;
 			this._acY = -this._acY;
 			this._acZ = -this._acZ;
@@ -126,18 +138,9 @@ export class Acc {
 //キー入力用
 
 export class Key {
-	K_ENTER = 13
-	K_SPACE = 32
-	K_LEFT  = 37
-	K_UP    = 38
-	K_RIGHT = 39
-	K_DOWN  = 40
-	K_a     = 65
-	K_z     = 90
 	private _se: SE
-
-	_inkey: number
-	_key: number[]
+	private _inkey: number
+	private _key: number[]
 
 	constructor(se: SE) {
 		this._inkey = 0

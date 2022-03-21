@@ -1,13 +1,14 @@
 //端末の種類
+export let PT_PC		= 0;
+export let PT_iOS		= 1;
+export let PT_Android	= 2;
+export let PT_Kindle	= 3;
 
-class Device {
-  public PT_PC		= 0;
-  public PT_iOS		= 1;
-  public PT_Android	= 2;
-  public PT_Kindle	= 3;
-  constructor(private _type: number) {}
-  get type(): number { return this._type; }
-  set type(type: number) { this._type = type; }
+export class Device {
+  private _type: number
+  constructor() {
+    this._type = PT_PC
+  }
+  get type(): number { return this._type }
+  set type(type: number) { this._type = type }
 }
-
-export  const device	= new Device(0);
