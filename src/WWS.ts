@@ -65,12 +65,10 @@ export abstract class MMS {
   wwsSysMain(): void {
 
     let stime = Date.now()
-
+    //ブラウザのサイズが変化したか？（スマホなら持ち方を変えたか　縦持ち⇔横持ち）
     if(this.canvas.bakW != window.innerWidth || this.canvas.bakH != window.innerHeight) {
       this.canvas.initCanvas()
-      this.draw.lineW(this.draw.line_width)
       log("canvas size changed " + this.canvas.bakW + "x" + this.canvas.bakH);
-
     }
 
     main_tmr ++

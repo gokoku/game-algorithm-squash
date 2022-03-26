@@ -15,12 +15,12 @@ export class Draw extends Canvas{
   }
 
   loadImg(n: number, filename: string) {
-    log("画像" + n + " " + filename + "読み込み開始")
+    //log("画像" + n + " " + filename + "読み込み開始")
     this.img_loaded[n] = false
     this.img[n] = new Image()
     this.img[n].src = filename
     this.img[n].onload = () =>{
-      log("画像" + n + " " + filename + "読み込み完了")
+      //log("画像" + n + " " + filename + "読み込み完了")
       this.img_loaded[n] = true
     }
   }

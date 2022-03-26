@@ -23,14 +23,12 @@ export class Canvas {
     this.bakW = winW
     this.bakH = winH
 
-    if( winH < winW * (CHEIGHT / CWIDTH) ) {
+    if( winH < (winW * CHEIGHT / CWIDTH) ) {
       //winW を比率に合わせて調整
-      winW = int(winH * (CWIDTH / CHEIGHT))
-      log("1 width: " + winW + " height: " + winH)
+      winW = int(winH * CWIDTH / CHEIGHT)
     } else {
       //winH を比率に合わせて調整
-      winH = int(CHEIGHT * winW / CWIDTH)
-      log("2 width: " + winW + " height: " + winH)
+      winH = int(winW * CHEIGHT / CWIDTH)
     }
 
     this.cvs.width = winW
@@ -42,7 +40,8 @@ export class Canvas {
     this.bg.textAlign = "center"
     this.bg.textBaseline = "middle"
 
-    //log("width: " + winW + " height: " + winH)
+    log(`width: ${winW} height:${winH} scale:${SCALE}`)
+    log(`inner width: ${window.innerWidth} inner height:${window.innerHeight}`)
   }
 
   canvasSize(w: number, h: number) {

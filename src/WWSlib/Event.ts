@@ -1,16 +1,7 @@
-import { int, log } from "./Utility"
+import { int, log, codeToStr } from "./Utility"
 import { SE } from "./Sound"
 import { SCALE } from "./Canvas"
 import { Device, PT_Android } from "./Device"
-
-export const K_ENTER = 13
-export const K_SPACE = 32
-export const K_LEFT  = 37
-export const K_UP    = 38
-export const K_RIGHT = 39
-export const K_DOWN  = 40
-export const K_a     = 65
-export const K_z     = 90
 
 // ---------- タップ入力 ----------
 export class Touch {
@@ -136,32 +127,32 @@ export class Acc {
 }
 
 //キー入力用
-
 export class Key {
-	private _se: SE
-	private _inkey: number
-	private _key: number[]
+	public _se: SE
+	public inkey: number
+	public key: number[]
 
 	constructor(se: SE) {
-		this._inkey = 0
-		this._key = new Array(256);
+		this.inkey = 0
+		this.key = new Array(256);
 		this._se = se
 	}
 
 	clr() {
-		this._inkey = 0;
-		for(var i = 0; i < 256; i++) this._key[i] = 0;
+		this.inkey = 0;
+		for(var i = 0; i < 256; i++) this.key[i] = 0;
 	}
 
 	on(e: KeyboardEvent) {
+		//log( `${e.key} : ${e.code} : ${e.keyCode} : ${codeToStr(e.code)}` )
+
 		if(this._se.snd_init == 0) this._se.loadSoundSPhone();//【重要】サウンドの読み込み
-		this._inkey = e.keyCode;
-		this._key[e.keyCode]++;
-	//log(inkey);
+		this.inkey = codeToStr(e.code)
+		this.key[codeToStr(e.code)]++
 	}
 
 	off(e: KeyboardEvent) {
-		this._inkey = 0;
-		this._key[e.keyCode] = 0;
+		this.inkey = 0;
+		this.key[codeToStr(e.code)] = 0;
 	}
 }
