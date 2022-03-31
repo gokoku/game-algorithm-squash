@@ -40,7 +40,6 @@ let CHECK_LS = false;
 // -------------リアルタイム処理-------------
 export abstract class MMS {
   abstract setup(): void
-  abstract clrKey(): void
   abstract mainloop(): void
 
   public canvas: Canvas
@@ -76,6 +75,7 @@ export abstract class MMS {
     switch(main_idx) {
       case 0:
         this.setup()
+        this.key.clr()
         main_idx = 2
         if(CHECK_LS == true) {
           try {localStorage.setItem("_save_test", "testdata")} catch(e) { main_idx = 1 }
@@ -98,7 +98,7 @@ export abstract class MMS {
         if(stop_flg == 0) {
           this.mainloop()
         } else {
-          this.clrKey()
+          this.key.clr()
           main_tmr--
         }
         if(this.se.wait_se > 0) this.se.wait_se--

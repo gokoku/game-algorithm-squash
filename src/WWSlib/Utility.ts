@@ -12,11 +12,24 @@ export function str(val: number): string {
   return String(val)
 }
 export function rnd(max: number): number {
-  return Math.floor(Math.random()*max)
+  return int(Math.random() * max)
 }
 export function abs(val: number): number {
   return Math.abs(val)
 }
+
+export function cos(a: number): number {
+  return Math.cos(Math.PI * 2 * a / 360)
+}
+
+export function sin(a: number): number {
+  return Math.sin(Math.PI * 2 * a / 360)
+}
+
+export function getDis(x1: number, y1: number, x2: number, y2: number): number {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
+}
+
 
 // ---------- キー入力キーのマッピング(keyCode が非推奨のため) ----------
 export function codeToStr(code: string): number {
