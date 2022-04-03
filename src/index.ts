@@ -1,5 +1,5 @@
 import { MMS } from './WWS'
-import { getDis, KEY_NAME, log, rnd } from './WWSlib/Utility'
+import { getDis, KEY_NAME, log, rnd, int } from './WWSlib/Utility'
 
 const MSL_MAX = 100
 const OBJ_MAX = 100
@@ -28,6 +28,7 @@ class MyGame extends MMS {
   objY: number[] = new Array(OBJ_MAX)
   objXp: number[] = new Array(OBJ_MAX)
   objYp: number[] = new Array(OBJ_MAX)
+  objLife: number[] = new Array(OBJ_MAX)
   objF: boolean[] = new Array(OBJ_MAX)
   objNum: number = 0
 
@@ -47,8 +48,7 @@ class MyGame extends MMS {
     this.draw.loadImg(1, "image2/spaceship.png")
     this.draw.loadImg(2, "image2/missile.png")
     this.draw.loadImg(3, 'image2/explode.png')
-    this.draw.loadImg(4, 'image2/enemy0.png')
-    this.draw.loadImg(5, 'image2/enemy1.png')
+    for(let i=0; i<=4; i++) this.draw.loadImg(4+i, `image2/enemy${i}.png`)
     this.initSShip()
     this.initMissile()
     this.initOject()
@@ -57,13 +57,12 @@ class MyGame extends MMS {
   mainloop(): void {
     this.tmr++
     this.drawBG(1)
+    this.setEnemy()
     this.moveSShip()
     this.moveMissile()
-    if(this.tmr % 30 == 0){
-      this.setOject(1, 5, 1200, rnd(700), -12, 0)
-    }
     this.moveOject()
     this.drawEffect()
+    //エネルギーの表示
     for(let i=0; i<10; i++) this.draw.fRect(20 + i*30, 660, 20, 40, "#c00000")
     for(let i = 0; i < this.energy; i++)
       this.draw.fRect(20 + i*30, 660, 20, 40, this.draw.colorRGB(160-16*i, 240-12*i, 24*i))
@@ -97,9 +96,11 @@ class MyGame extends MMS {
     if(this.automa == 1 && this.tmr % 8 == 0)
       this.setMissile(this.ssX + 40, this.ssY, 40, 0)
     let col = "black"
+    //オートマチック表示部
     if(this.automa == 1) col = "white"
     this.draw.fRect(900, 20, 280, 60, "blue")
     this.draw.fText("[A]uto Missile", 1040, 50, 36, col)
+    //無敵モードのエフェクト
     if(this.muteki % 2 == 0)
       this.draw.drawImgC(1, this.ssX, this.ssY)
     if(this.muteki > 0) this.muteki--
@@ -137,13 +138,14 @@ class MyGame extends MMS {
     this.objNum = 0
   }
 
-  setOject(typ: number, png: number, x: number, y: number, xp: number, yp: number) {
+  setObject(typ: number, png: number, x: number, y: number, xp: number, yp: number, lif: number) {
     this.objType[this.objNum] = typ
     this.objImg[this.objNum] = png
     this.objX[this.objNum] = x
     this.objY[this.objNum] = y
     this.objXp[this.objNum] = xp
     this.objYp[this.objNum] = yp
+    this.objLife[this.objNum] = lif
     this.objF[this.objNum] = true
     this.objNum = (this.objNum + 1) % OBJ_MAX
   }
@@ -153,19 +155,35 @@ class MyGame extends MMS {
       if(this.objF[i] == true) {
         this.objX[i] += this.objXp[i]
         this.objY[i] += this.objYp[i]
-        this.draw.drawImgC(this.objImg[i], this.objX[i], this.objY[i])
-        if(this.objType[i] == 1 && rnd(100) < 3) {
-          this.setOject(0, 4, this.objX[i], this.objY[i], -24, 0)
+        if(this.objImg[i] == 6) { //敵2の特殊な動き
+          if(this.objY[i] < 60) this.objYp[i] = 8
+          if(this.objY[i] > 660) this.objYp[i] = -8
         }
-        if(this.objX[i] < 0) this.objF[i] = false
+        if(this.objImg[i] == 7) { //敵3の特殊な動き
+          if(this.objXp[i] < 0) {
+            this.objXp[i] = int(this.objXp[i] * 0.95)
+            if(this.objXp[i] == 0) {
+              this.setObject(0, 4, this.objX[i], this.objY[i], -20, 0, 0) //弾を撃つ
+              this.objXp[i] = 20
+            }
+          }
+        }
+        this.draw.drawImgC(this.objImg[i], this.objX[i], this.objY[i]) //物体の表示
+
         //自機が撃った弾とヒットチェック
-        if(this.objType[i] == 1) {
+        if(this.objType[i] == 1) {//敵機
           const r = 12 + (this.draw.img[this.objImg[i]].width + this.draw.img[this.objImg[i]].height) / 4
-          for(let n = 0; n < MSL_MAX; n++) {
+          for(let n = 0; n < MSL_MAX; n++) { //全弾の判定チェック
             if(this.mslF[n] == true) {
               if(getDis(this.objX[i], this.objY[i], this.mslX[n], this.mslY[n]) < r) {
-                this.setEffect(this.objX[i], this.objY[i], 9)
-                this.objF[i] = false
+                this.mslF[n] = false
+                this.objLife[i] -= 1
+                if(this.objLife[i] == 0) {
+                  this.objF[i] = false
+                  this.setEffect(this.objX[i], this.objY[i], 9)
+                } else {
+                  this.setEffect(this.objX[i], this.objY[i], 3)
+                }
               }
             }
           }
@@ -178,6 +196,9 @@ class MyGame extends MMS {
             this.energy -= 1
             this.muteki = 30
           }
+        }
+        if(this.objX[i] < -100 || this.objX[i] > 1300 || this.objY[i] < -100 || this.objY[i] > 820) {
+          this.objF[i] = false
         }
       }
     }
@@ -204,6 +225,13 @@ class MyGame extends MMS {
         this.efctN[i]--
       }
     }
+  }
+
+  setEnemy() {
+    if(this.tmr % 60 == 0) this.setObject(1, 5, 1300, 60 + rnd(600), -16, 0, 1) //敵1
+    if(this.tmr % 60 == 10)this.setObject(1, 6, 1300, 60 + rnd(600), -12, 8, 3) //敵2
+    if(this.tmr % 60 == 20)this.setObject(1, 7, 1300, 360 + rnd(300), -48, -10, 5) //敵3
+    if(this.tmr % 60 == 30)this.setObject(1, 8, 1300, rnd(720-192), -6, 0, 0) //障害物
   }
 }
 

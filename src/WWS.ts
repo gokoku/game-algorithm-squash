@@ -9,8 +9,8 @@ th@wwsft.com ワールドワイドソフトウェア 廣瀬
 */
 
 import { int, log } from './WWSlib/Utility'
-import { Touch, Mouse, Key } from "./WWSlib/Event"
-import { CWIDTH, CHEIGHT, Canvas } from "./WWSlib/Canvas"
+import { Touch, Mouse, Key, Acc} from "./WWSlib/Event"
+import { CWIDTH, CHEIGHT, Canvas, SCALE } from "./WWSlib/Canvas"
 import { Draw } from "./WWSlib/Draw"
 import { SE } from './WWSlib/Sound'
 import { Device, PT_Android, PT_iOS, PT_Kindle } from './WWSlib/Device'
@@ -49,6 +49,8 @@ export abstract class MMS {
   public key: Key
   public se: SE
   public device: Device
+  public acc: Acc
+  public frameSec: number
 
   constructor() {
     window.addEventListener("load", this.wwsSysInit.bind(this))
@@ -59,6 +61,8 @@ export abstract class MMS {
     this.touch = new Touch(this.se)
     this.key = new Key(this.se)
     this.device = new Device()
+    this.acc = new Acc(this.device)
+    this.frameSec = int(1000 / FPS)
   }
 
   wwsSysMain(): void {
@@ -105,11 +109,29 @@ export abstract class MMS {
         break
       default: break
     }
-    var ptime = Date.now() - stime;
-    if(ptime < 0) ptime = 0;
-    if(ptime > int(1000/FPS)) ptime = int(1000/FPS);
+    var ptime = Date.now() - stime
+    if(ptime < 0) ptime = 0
+    if(ptime > this.frameSec) ptime = int(ptime / this.frameSec) * this.frameSec
 
-    setTimeout(this.wwsSysMain.bind(this), int(1000/FPS)-ptime);
+    if(DEBUG) {//★★★デバッグ
+      let i: number
+      let x: number = 240
+      let y: number
+      this.draw.fText("処理時間="+(ptime), x, 50, 16, "lime");
+      this.draw.fText(`deviceType= ${this.device.type}`, x, 100, 16, "yellow");
+      //this.draw.fText(`isBgm= ${isBgm} (${bgmNo})`, x, 150, 16, "yellow");
+      this.draw.fText(`winW=${this.canvas.winW} winH=${this.canvas.winH} SCALE= ${SCALE}`, x, 200, 16, "yellow");
+      this.draw.fText(`${main_idx} : ${main_tmr} (${this.touch.tapX} ${this.touch.tapY}) ${this.touch.tapC}`, x, 250, 16, "cyan")
+      this.draw.fText(`加速度 ${this.acc.acX} : ${this.acc.acY} : ${this.acc.acZ}`, x, 300, 16, "pink");
+      for(i = 0; i < 256; i++) {
+        x = i%16
+        y = int(i/16);
+        this.draw.fText(`${this.key.key[i]}`, 15+30*x, 15+30*y, 12, "white")
+      }
+    }
+    console.log(`${ptime}`)
+    setTimeout(this.wwsSysMain.bind(this), this.frameSec - ptime)
+
   }
 
   wwsSysInit() {

@@ -101,27 +101,27 @@ export class Mouse {
 
 // ---------- 加速度センサー ----------
 export class Acc {
-	_acX = 0
-	_acY = 0
-	_acZ = 0;
-	_device: Device
+	public acX = 0
+	public acY = 0
+	public acZ = 0;
+	public device: Device
 
 	constructor(device: Device) {
 		//window.ondevicemotion = deviceMotion;//★★★旧
 		window.addEventListener("devicemotion", this.deviceMotion);
-		this._device = device
+		this.device = device
 	}
 
 	deviceMotion(e: DeviceMotionEvent) {
 		var aIG: DeviceMotionEventAcceleration | null = e.accelerationIncludingGravity;
 		if (aIG == null) return;
-		if(aIG.x) this._acX = int(aIG.x);
-		if(aIG.y) this._acY = int(aIG.y);
-		if(aIG.z) this._acZ = int(aIG.z);
-		if(this._device.type == PT_Android) {//Android と iOS で正負が逆になる
-			this._acX = -this._acX;
-			this._acY = -this._acY;
-			this._acZ = -this._acZ;
+		if(aIG.x) this.acX = int(aIG.x);
+		if(aIG.y) this.acY = int(aIG.y);
+		if(aIG.z) this.acZ = int(aIG.z);
+		if(this.device.type == PT_Android) {//Android と iOS で正負が逆になる
+			this.acX = -this.acX;
+			this.acY = -this.acY;
+			this.acZ = -this.acZ;
 		}
 	}
 }
