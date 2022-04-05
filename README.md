@@ -1,3 +1,5 @@
 # 「ゲームアルゴリズムまるごと図鑑」を typescript にしてみる
 
-* squash
+TAG
+* squash-01
+* stg-01
