@@ -9,7 +9,7 @@ th@wwsft.com ワールドワイドソフトウェア 廣瀬
 */
 
 import { int, log } from './WWSlib/Utility'
-import { Touch, Mouse, Key, Acc} from "./WWSlib/Event"
+import { Touch, Key, Acc} from "./WWSlib/Event"
 import { CWIDTH, CHEIGHT, Canvas, SCALE } from "./WWSlib/Canvas"
 import { Draw } from "./WWSlib/Draw"
 import { SE } from './WWSlib/Sound'
@@ -44,7 +44,6 @@ export abstract class MMS {
 
   public canvas: Canvas
   public draw: Draw
-  public mouse: Mouse
   public touch: Touch
   public key: Key
   public se: SE
@@ -53,11 +52,11 @@ export abstract class MMS {
   public frameSec: number
 
   constructor() {
+    document.addEventListener("visibilitychange", this.vcProc.bind(this))
     window.addEventListener("load", this.wwsSysInit.bind(this))
     this.canvas = new Canvas()
     this.draw = new Draw()
     this.se = new SE()
-    this.mouse = new Mouse(this.se)
     this.touch = new Touch(this.se)
     this.key = new Key(this.se)
     this.device = new Device()
@@ -95,7 +94,7 @@ export abstract class MMS {
         this.draw.fTextN("iOS端末をお使いの場合は\nSafariのプライベートブラウズ\nをオフにして起動して下さい。", x, y*2, y, fs, "yellow");
         this.draw.fTextN("その他の機種（ブラウザ）では\nローカルストレージへの保存を\n許可する設定にして下さい。", x, y*4, y, fs, "yellow");
         this.draw.fText("このまま続けるには画面をタップ", x, y*5.5, fs, "lime");
-        if(this.mouse.tapC != 0) main_idx = 2;
+        if(this.touch.tapC != 0) main_idx = 2;
         break;
 
       case 2: //メイン処理
@@ -129,9 +128,7 @@ export abstract class MMS {
         this.draw.fText(`${this.key.key[i]}`, 15+30*x, 15+30*y, 12, "white")
       }
     }
-    console.log(`${ptime}`)
     setTimeout(this.wwsSysMain.bind(this), this.frameSec - ptime)
-
   }
 
   wwsSysInit() {
@@ -152,15 +149,30 @@ export abstract class MMS {
 
     if(supportTouch == true) {
       this.canvas.cvs.addEventListener("touchstart", this.touch.start.bind(this.touch))
-      this.canvas.cvs.addEventListener("touchmove", this.touch.move.bind(this.touch))
+      this.canvas.cvs.addEventListener("touchmove", this.touch.touchMove.bind(this.touch))
       this.canvas.cvs.addEventListener("touchend", this.touch.end.bind(this.touch))
       this.canvas.cvs.addEventListener("touchcancel", this.touch.cancel.bind(this.touch))
     } else {
-      this.canvas.cvs.addEventListener("mousedown", this.mouse.down.bind(this.mouse))
-      this.canvas.cvs.addEventListener("mousemove", this.mouse.move.bind(this.mouse))
-      this.canvas.cvs.addEventListener("mouseup", this.mouse.up.bind(this.mouse))
-      this.canvas.cvs.addEventListener("mouseout", this.mouse.out.bind(this.mouse))
+      this.canvas.cvs.addEventListener("mousedown", this.touch.down.bind(this.touch))
+      this.canvas.cvs.addEventListener("mousemove", this.touch.mouseMove.bind(this.touch))
+      this.canvas.cvs.addEventListener("mouseup", this.touch.up.bind(this.touch))
+      this.canvas.cvs.addEventListener("mouseout", this.touch.out.bind(this.touch))
     }
     this.wwsSysMain()
+  }
+
+  vcProc() {
+    if(document.visibilityState == "hidden") {
+      stop_flg = 1
+      if(this.se.isBgm == 1) {
+        this.se.pauseBgm()
+        this.se.isBgm = 2
+      }
+    } else if(document.visibilityState == "visible") {
+      stop_flg = 0
+      if(this.se.isBgm == 2) {
+        this.se.playBgm(this.se.bgmNo)
+      }
+    }
   }
 }

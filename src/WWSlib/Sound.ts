@@ -1,3 +1,5 @@
+import { log } from './Utility'
+
 // -------------サウンド制御-------------
 export let  SOUND_ON = true
 export class SE {
@@ -49,5 +51,29 @@ export class SE {
       this.soundFile[n].play()
       this.wait_se = 3 //ブラウザに負荷をかけないように連続して流さないようにする
     }
+  }
+
+  playBgm(n: number) {
+    if(SOUND_ON == false) return
+    log(`ＢＧＭ ${n} 出力`)
+    this.bgmNo = n
+    this.soundFile[n].loop = true
+    this.soundFile[n].play()
+    this.isBgm = 1 //BGM再生中
+  }
+
+  pauseBgm() {
+    this.soundFile[this.bgmNo].pause()
+    this.isBgm = 0 //BGM停止中
+  }
+
+  stopBgm() {
+    this.soundFile[this.bgmNo].pause()
+    this.soundFile[this.bgmNo].currentTime = 0
+    this.isBgm = 0 //BGM停止
+  }
+
+  rateSnd(rate: number) {
+    this.soundFile[this.bgmNo].volume = rate
   }
 }

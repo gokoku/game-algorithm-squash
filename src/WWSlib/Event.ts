@@ -16,6 +16,33 @@ export class Touch {
 		this.tapY = 0;
 		this.tapC = 0;
 	}
+	// -------------------マウス入力系-------------------
+	down(e: MouseEvent) {
+		e.preventDefault();//キャンバスの選択／スクロール等を抑制する
+		if(! e.target) return
+		const target = e.target as HTMLElement
+		var rect = target.getBoundingClientRect()
+		this.tapX = e.clientX-rect.left;
+		this.tapY = e.clientY-rect.top;
+		this.tapC = 1;
+		this.transformXY()
+		if(this._se.snd_init == 0) this._se.loadSoundSPhone();//【重要】サウンドの読み込み
+	}
+
+	mouseMove(e: MouseEvent) {
+		e.preventDefault();
+		if(! e.target) return
+		const target = e.target as HTMLElement
+		const rect = target.getBoundingClientRect()
+		this.tapX = e.clientX-rect.left;
+		this.tapY = e.clientY-rect.top;
+		this.transformXY()
+	}
+
+	up(e: MouseEvent) { this.tapC = 0; }
+	out(e: MouseEvent) { this.tapC = 0; }
+
+	// -------------------タップ入力系-------------------
 	start(e: TouchEvent) {
 		e.preventDefault();//キャンバスの選択／スクロール等を抑制する
 		const target = e.target as HTMLElement
@@ -27,7 +54,7 @@ export class Touch {
 		if(this._se.snd_init == 0) this._se.loadSoundSPhone();//【重要】サウンドの読み込み
 	}
 
-	move(e: TouchEvent) {
+	touchMove(e: TouchEvent) {
 		e.preventDefault();
 		const target = e.target as HTMLElement
 		const rect = target.getBoundingClientRect();
@@ -68,35 +95,6 @@ export class Mouse {
 		this.tapY = 0
 	}
 
-	down(e: MouseEvent) {
-		e.preventDefault();//キャンバスの選択／スクロール等を抑制する
-		if(! e.target) return
-		const target = e.target as HTMLElement
-		var rect = target.getBoundingClientRect()
-		this.tapX = e.clientX-rect.left;
-		this.tapY = e.clientY-rect.top;
-		this.tapC = 1;
-		this.transformXY()
-		if(this._se.snd_init == 0) this._se.loadSoundSPhone();//【重要】サウンドの読み込み
-	}
-
-	move(e: MouseEvent) {
-		e.preventDefault();
-		if(! e.target) return
-		const target = e.target as HTMLElement
-		const rect = target.getBoundingClientRect()
-		this.tapX = e.clientX-rect.left;
-		this.tapY = e.clientY-rect.top;
-		this.transformXY()
-	}
-
-	up(e: MouseEvent) { this.tapC = 0; }
-	out(e: MouseEvent) { this.tapC = 0; }
-
-	transformXY() {//実座標→仮想座標への変換
-		this.tapX = int(this.tapX / SCALE);
-		this.tapY = int(this.tapY / SCALE);
-	}
 }
 
 // ---------- 加速度センサー ----------
