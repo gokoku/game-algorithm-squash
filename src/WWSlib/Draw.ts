@@ -165,9 +165,9 @@ export class Draw extends Canvas{
     }
     for( let i = 0; i < sn.length; i++) {
       this.bg.fillStyle = "black"
-      this.bg.fillText(str, x+1, y+1)
+      this.bg.fillText(sn[i], x+1, y + h*i + 1)
       this.bg.fillStyle = col
-      this.bg.fillText(str, x, y)
+      this.bg.fillText(sn[i], x, y + h*i)
     }
   }
   mTextWidth(str: string) {

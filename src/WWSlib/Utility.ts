@@ -78,6 +78,8 @@ export const KEY_NAME = {
 	"UP"    : 38,
 	"RIGHT" : 39,
 	"DOWN"  : 40,
-	"a"     : 65,
-	"z"     : 90
+	"A"     : 65,
+	"Z"     : 90,
+  "R"     : 82,
+  "C"     : 67
 }

@@ -30,8 +30,6 @@ let stop_flg = 0 // メイン処理の一時停止
 const NUA = navigator.userAgent;//機種判定
 const supportTouch = 'ontouchend' in document;//タッチイベントが使えるか？
 
-// フレームレート frames / second
-let  FPS = 30
 //ローカルストレージ
 const LS_KEYNAME = "SAVEDATA";//keyName 任意に変更可
 //保存できるか判定し、できない場合に警告を出す　具体的には iOS Safari プライベートブラウズがON（保存できない）状態に警告を出す
@@ -50,6 +48,8 @@ export abstract class MMS {
   public device: Device
   public acc: Acc
   public frameSec: number
+  // フレームレート frames / second
+  private FPS = 30
 
   constructor() {
     document.addEventListener("visibilitychange", this.vcProc.bind(this))
@@ -61,7 +61,12 @@ export abstract class MMS {
     this.key = new Key(this.se)
     this.device = new Device()
     this.acc = new Acc(this.device)
-    this.frameSec = int(1000 / FPS)
+    this.frameSec = int(1000 / this.FPS)
+  }
+
+  setFPS(fps: number) {
+    this.FPS = fps
+    this.frameSec = int(1000 / this.FPS)
   }
 
   wwsSysMain(): void {
